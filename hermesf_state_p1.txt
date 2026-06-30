@@ -1,0 +1,240 @@
+CREATE TABLE xlab_ecb_prj_sftds_cb_common.hermesf_state_p1 AS
+WITH filtered AS (
+
+    SELECT business_date, uti, tec_uuid as tec_surrogate_key, evtdt, valdt, maturity_date as effective_maturity_date, cast(is_opn_term AS INTEGER) AS is_opn_term, ccp_1, lender_id, borrower_id, lender_country, borrower_country, borrower_branch_country, lender_branch_country, 
+    nominal_value, nominal_euro, nominal_ccy, maturity_value, maturity_ccy, maturity_euro, lender_name, borrower_name, assttp_scty_mktval_amt_ccy,
+        CASE 
+      WHEN borrower_parent_id_gleif IS NOT NULL THEN borrower_parent_id_gleif
+      ELSE borrower_parent_id_riad
+    END AS borrower_parent_id,
+    CASE 
+      WHEN lender_parent_id_gleif IS NOT NULL THEN lender_parent_id_gleif
+      ELSE lender_parent_id_riad
+    END AS lender_parent_id,
+    gnlcoll, assttp_scty_id as security_isin, assttp_scty_mtrty as security_maturity, assttp_scty_tp as security_type, 
+    CASE 
+      WHEN LEFT(assttp_scty_mtrty, 2) = '20' THEN 
+      DATEDIFF(CAST(assttp_scty_mtrty AS DATE), CAST(valdt AS DATE))/365
+      ELSE NULL
+    END AS asset_maturity_x,
+    CASE
+      WHEN assttp_scty_hrcutormrgn = 100 THEN 0 
+      WHEN assttp_scty_hrcutormrgn = -100 THEN 0
+      WHEN assttp_scty_hrcutormrgn > 90 AND assttp_scty_hrcutormrgn < 120 THEN (1 - (100/assttp_scty_hrcutormrgn))* 100
+      ELSE assttp_scty_hrcutormrgn
+    END AS haircut_x,
+    CASE 
+      WHEN borrower_branch_country IS NOT NULL THEN borrower_branch_country
+      WHEN borrower_branch_country IS NULL THEN borrower_country
+    END AS borrower_country_residence,
+    CASE 
+      WHEN lender_branch_country IS NOT NULL THEN lender_branch_country
+      WHEN lender_branch_country IS NULL THEN lender_country
+    END AS lender_country_residence,
+
+    CASE
+        WHEN borrower_id = '549300H47WTHXPU08X20' THEN 'borrower' 
+        WHEN lender_id = '549300H47WTHXPU08X20' THEN 'lender'
+    END AS FICC,
+    ROW_NUMBER() OVER (PARTITION BY business_date, borrower_id, lender_id, nominal_ccy, nominal_value, maturity_date, trade_type ORDER BY valdt) belgium_flag
+    FROM xlab_ecb_prj_sftds_cb_common.repo_dedupled_current
+    WHERE business_date >= '2021-01-01' AND business_date <= '2023-01-01'
+    AND nominal_euro < 1e11
+    AND valdt <= business_date
+    AND (maturity_date >= business_date OR maturity_date IS NULL)
+    AND nominal_euro != 0
+    AND business_date NOT IN ('2021-04-02', '2021-04-05', '2021-06-11','2021-07-29', '2022-02-08', '2022-02-09', '2022-04-15', '2022-04-18', '2023-04-07', '2023-04-10', '2023-05-01','2023-12-25', '2023-12-26', '2024-03-29', '2024-04-01') -- dates with bad reporting (also karfreitag/ostermontag/1mai)
+    AND uti NOT IN ('N4JDFKKH2FTD8RKFXO3920231221KEUROPEREP361042',
+    'N4JDFKKH2FTD8RKFXO3920231221KEUROPEREP361045',
+    'N4JDFKKH2FTD8RKFXO3920231221KEUROPEREP361046',
+    'N4JDFKKH2FTD8RKFXO3920231221KEUROPEREP361047',
+    'N4JDFKKH2FTD8RKFXO3920231221KEUROPEREP361048',
+    'N4JDFKKH2FTD8RKFXO3920231221KEUROPEREP361049',
+    'N4JDFKKH2FTD8RKFXO3920231221KEUROPEREP361050',
+    'N4JDFKKH2FTD8RKFXO3920231221KEUROPEREP361051',
+    'N4JDFKKH2FTD8RKFXO3920231221KEUROPEREP361052',
+    'N4JDFKKH2FTD8RKFXO3920231221KEUROPEREP361053',
+    'N4JDFKKH2FTD8RKFXO3920231221KEUROPEREP361054',
+    'N4JDFKKH2FTD8RKFXO3920231221KEUROPEREP361055',
+    'N4JDFKKH2FTD8RKFXO3920231221KEUROPEREP361056',
+    'N4JDFKKH2FTD8RKFXO3920231221KEUROPEREP361057',
+    'N4JDFKKH2FTD8RKFXO3920231221KEUROPEREP361058',
+    'N4JDFKKH2FTD8RKFXO3920231221KEUROPEREP361059',
+    'N4JDFKKH2FTD8RKFXO3920231221KEUROPEREP361060',
+    'N4JDFKKH2FTD8RKFXO3920231221KEUROPEREP361061',
+    'N4JDFKKH2FTD8RKFXO3920231221KEUROPEREP361062',
+    'N4JDFKKH2FTD8RKFXO3920231221KEUROPEREP361063',
+    'N4JDFKKH2FTD8RKFXO3920231221KEUROPEREP361064',
+    'N4JDFKKH2FTD8RKFXO3920231221KEUROPEREP361065',
+    'N4JDFKKH2FTD8RKFXO3920231221KEUROPEREP361066',
+    'N4JDFKKH2FTD8RKFXO3920231221KEUROPEREP361067',
+    'N4JDFKKH2FTD8RKFXO3920231221KEUROPEREP361068',
+    'N4JDFKKH2FTD8RKFXO3920231221KEUROPEREP361069') -- these are transactions between two funds that have much larger volumes than the underlying collateral even has outstanding (e.g., a repo of 10 billion while the underlying collateral only has 1 billion outstanding)
+    AND (
+        (nominal_ccy = 'USD' AND business_date NOT IN ('2021-01-01', '2021-01-18', '2021-01-19', '2021-01-20', '2021-02-15', '2021-02-16',  '2021-05-31', '2021-06-01', '2021-06-17', '2021-06-18', '2021-07-05', '2021-07-06', '2021-09-06', '2021-09-07', '2021-10-11', '2021-10-12',
+                                                            '2021-11-10', '2021-11-11', '2021-11-12', '2021-11-24', '2021-11-25', '2021-11-26', '2021-12-23', '2021-12-24', '2021-12-30', '2021-12-31', '2022-01-17', '2022-01-18', '2022-02-21', '2022-02-22', '2022-05-30', '2022-05-31',
+                                                            '2022-06-20', '2022-06-21', '2022-07-04', '2022-07-05', '2022-09-05', '2022-09-06', '2022-10-10', '2022-10-11', '2022-11-10', '2022-11-11', '2022-11-23', '2022-11-24', '2022-11-25', '2022-12-26', '2022-12-27', '2023-01-02',
+                                                            '2023-01-03', '2023-01-16', '2023-01-17', '2023-02-20', '2023-02-21', '2023-05-29', '2023-05-30', '2023-06-19', '2023-06-20', '2023-07-03', '2023-07-04', '2023-07-05', '2023-09-04', '2023-09-05', '2023-10-09', '2023-10-10',
+                                                            '2023-11-09', '2023-11-10', '2023-11-22', '2023-11-23', '2023-11-24', '2023-12-25', '2023-12-26', '2024-01-01', '2024-01-02', '2024-01-15', '2024-01-16', '2024-02-19', '2024-02-20', '2024-05-24', '2024-05-27', '2024-05-28', 
+                                                            '2024-07-03', '2024-07-04', '2024-07-05', '2024-08-30', '2024-09-02', '2024-09-03', '2024-10-11', '2024-10-14', '2024-10-15', '2024-11-08', '2024-11-11', '2024-11-12', '2024-11-27', '2024-11-28', '2024-11-29', '2024-12-24', 
+                                                            '2024-12-25', '2024-12-26', '2024-12-31', '2025-01-01', '2025-01-02', '2025-01-17', '2025-01-20', '2025-01-21', '2025-02-14', '2025-02-17', '2025-02-18'))
+        OR 
+        (nominal_ccy != 'USD')
+    ) -- these are public holidays in the US (and the day before and after), but since this is a euro area dataset, these dates are still recorded, leading to weird behaviour when considering USD trades
+    AND (ccp_1 != '2534007UK6G30KDX1A47' OR ccp_1 IS NULL)
+    AND local_index = 0
+),
+merged_data AS (
+
+    SELECT
+    t.tec_surrogate_key, t.minimum_notice_period, t.fxd_rate, t.flt_rate_spread_basispoints, t.flt_rate_value_sdw, t.flt_rate_ref_prd_mltplr, t.flt_rate, t.flt_rate_proprietary, t.agent_lender_id, t.beneficiary_id, t.broker_id, t.clearing_member_id,
+    t.triparty_agent_id, t.collateral_basket_id, t.execution_timestamp,t.reporting_timestamp, cs.issuer_country, cs.issuer_esa_sector_riad, t.collateralisation_net_exposure, cs.isin_maturity_date_csdb, cs.isin_issue_date_csdb,
+    CASE
+      WHEN t.other_cpty_ultimate_parent_country_gleif IS NOT NULL AND t.counterparty_side = 'GIVE'
+           THEN t.other_cpty_ultimate_parent_country_gleif
+      WHEN t.other_cpty_ultimate_parent_country_gleif IS NULL     AND t.counterparty_side = 'GIVE'
+           THEN t.other_cpty_ultimate_parent_country_riad
+    END AS lender_parent_country,
+    CASE
+      WHEN t.other_cpty_ultimate_parent_country_gleif IS NOT NULL AND t.counterparty_side = 'TAKE'
+           THEN t.other_cpty_ultimate_parent_country_gleif
+      WHEN t.other_cpty_ultimate_parent_country_gleif IS NULL     AND t.counterparty_side = 'TAKE'
+           THEN t.other_cpty_ultimate_parent_country_riad
+    END AS borrower_parent_country,
+    CASE
+      WHEN t.fxd_rate <= -10 AND t.reference_period <= '2021-12-15' THEN t.fxd_rate/100
+      WHEN t.principal_amount_start_date_currency = 'USD'
+           AND t.reference_period > '2021-06-16' AND t.reference_period < '2021-11-16'
+           AND (t.reporting_cpty_id = 'R0MUWSFPU8MPRO8K5P83' OR t.other_cpty_id = 'R0MUWSFPU8MPRO8K5P83')
+           THEN t.fxd_rate/100
+      ELSE t.fxd_rate
+    END AS repo_rate
+FROM crp_sftds_ecb.trade_states_repo_buysellback t,
+     t.collateral_security cs
+WHERE cs.pos = 0                                  -- replaces local_index = 0 (first collateral security)
+  AND t.reference_period >= '2021-01-01' AND t.reference_period <= '2023-01-01'
+  AND t.start_date <= t.reference_period          -- was valdt <= business_date
+  AND t.principal_amount_start_date_eur < 1e11
+  AND t.principal_amount_start_date_eur != 0
+  AND (t.broker_id != '5493008C22FNI0QEEF10' OR t.broker_id IS NULL)
+),
+
+maturity_strategy AS (
+SELECT uti,     
+    CASE 
+      WHEN max(cast(is_opn_term AS INTEGER)) = 1 AND min(cast(is_opn_term AS INTEGER)) = 1 THEN 'open'
+      WHEN max(cast(is_opn_term AS INTEGER)) = 0 AND min(cast(is_opn_term AS INTEGER)) = 0 THEN 'fixed'
+      ELSE 'mixed'
+    END AS maturity_strategy
+FROM filtered
+GROUP BY uti
+),
+
+borrower_parents AS (
+    SELECT 
+        borrower_id,
+        COALESCE(borrower_parent_id, borrower_id) AS borrower_parent_id
+    FROM filtered
+    GROUP BY borrower_id, borrower_parent_id
+),
+lender_parents AS (
+    SELECT 
+        lender_id,
+        COALESCE(lender_parent_id, lender_id) AS lender_parent_id
+    FROM filtered
+    GROUP BY lender_id, lender_parent_id
+),
+intragroup_mapping AS (
+    SELECT 
+        b.borrower_id,
+        l.lender_id,
+        1 AS is_intragroup
+    FROM borrower_parents b
+    JOIN lender_parents l ON b.borrower_parent_id = l.lender_parent_id
+    GROUP BY b.borrower_id, l.lender_id
+)
+
+SELECT f.*,
+    CASE 
+        WHEN ig.is_intragroup IS NOT NULL THEN 1
+        ELSE 0
+    END AS intragroup,
+CASE
+  WHEN g.haircut_clean IS NOT NULL THEN g.haircut_clean
+  ELSE f.haircut_x
+END AS haircut, 
+CASE
+  WHEN g.asset_maturity_gene IS NOT NULL THEN g.asset_maturity_gene
+  ELSE f.asset_maturity_x
+END AS residual_asset_maturity, 
+CASE 
+  WHEN m.collateral_basket_id IS NOT NULL AND m.collateral_basket_id != 'NTAV' THEN 'GOVS' 
+  ELSE g.basket_type 
+END AS bskt_type,
+CASE 
+  WHEN m.collateral_basket_id IS NOT NULL AND m.collateral_basket_id != 'NTAV' THEN LEFT(m.collateral_basket_id, 2)
+  ELSE g.basket_country 
+END AS bskt_country,
+m.minimum_notice_period, m.repo_rate,
+m.flt_rate_spread_basispoints, m.flt_rate_value_sdw, m.flt_rate_ref_prd_mltplr, m.flt_rate, m.flt_rate_proprietary, m.agent_lender_id, m.beneficiary_id,
+    m.broker_id, m.clearing_member_id, m.triparty_agent_id, m.collateral_basket_id, m.lender_parent_country, m.borrower_parent_country, m.execution_timestamp, m.reporting_timestamp, m.issuer_country, m.issuer_esa_sector_riad, m.collateralisation_net_exposure as net_exposure,
+CASE
+  WHEN m.borrower_parent_country IS NOT NULL THEN m.borrower_parent_country
+  WHEN m.borrower_parent_country IS NULL THEN f.borrower_country
+END AS borrower_country_nationality,
+CASE
+  WHEN m.lender_parent_country IS NOT NULL THEN m.lender_parent_country
+  WHEN m.lender_parent_country IS NULL THEN f.lender_country
+END AS lender_country_nationality,
+k.contractual_maturity_date, 
+CASE 
+  WHEN p.maturity_strategy = 'fixed' THEN 
+    CASE 
+      WHEN LEFT(k.contractual_maturity_date, 2) = '20' THEN 
+        -- Approximate business day difference excluding weekends
+        (DATEDIFF(CAST(k.contractual_maturity_date AS DATE), CAST(f.valdt AS DATE))
+        - (FLOOR((DATEDIFF(CAST(k.contractual_maturity_date AS DATE), CAST(f.valdt AS DATE)) + 
+        (DAYOFWEEK(CAST(f.valdt AS DATE)) - 1)) / 7) * 2)
+        - CASE WHEN DAYOFWEEK(CAST(f.valdt AS DATE)) = 7 THEN 1 ELSE 0 END
+        - CASE WHEN DAYOFWEEK(CAST(k.contractual_maturity_date AS DATE)) = 7 THEN 1 ELSE 0 END)
+      ELSE NULL
+    END 
+  WHEN p.maturity_strategy = 'mixed' THEN 
+    -- Approximate business day difference excluding weekends
+    (DATEDIFF(CAST(k.contractual_maturity_date AS DATE), 
+      FIRST_VALUE(CAST(f.business_date AS DATE)) OVER (PARTITION BY f.uti, k.contractual_maturity_date ORDER BY f.business_date)) 
+      - (FLOOR((DATEDIFF(CAST(k.contractual_maturity_date AS DATE), 
+      FIRST_VALUE(CAST(f.business_date AS DATE)) OVER (PARTITION BY f.uti, k.contractual_maturity_date ORDER BY f.business_date)) + 
+      (DAYOFWEEK(FIRST_VALUE(CAST(f.business_date AS DATE)) OVER (PARTITION BY f.uti, k.contractual_maturity_date ORDER BY f.business_date)) - 1)) / 7) * 2) 
+      - CASE WHEN DAYOFWEEK(FIRST_VALUE(CAST(f.business_date AS DATE)) OVER (PARTITION BY f.uti, k.contractual_maturity_date ORDER BY f.business_date)) = 7 THEN 1 ELSE 0 END 
+      - CASE WHEN DAYOFWEEK(CAST(k.contractual_maturity_date AS DATE)) = 7 THEN 1 ELSE 0 END)
+  ELSE NULL
+END AS contractual_maturity,
+CASE
+  WHEN f.ccp_1 IS NOT NULL THEN 'cleared'
+  WHEN f.FICC IS NOT NULL THEN 'cleared'
+  WHEN m.triparty_agent_id IS NOT NULL THEN 'triparty'
+  ELSE 'non-cleared'
+END AS central_clearing,
+p.maturity_strategy
+--s_borrower.sector as borrower_sector, 
+--s_lender.sector as lender_sector,
+--s_borrower.subsector as borrower_subsector, 
+--s_lender.subsector as lender_subsector
+--s_parent_borrower.sector as borrower_parent_sector, 
+--s_parent_lender.sector as lender_parent_sector
+FROM filtered f
+LEFT JOIN merged_data m ON f.tec_surrogate_key = m.tec_surrogate_key
+LEFT JOIN xlab_ecb_prj_sftds_cb_common.hermesf_maturity k ON f.tec_surrogate_key = k.tec_uuid 
+LEFT JOIN maturity_strategy p ON f.uti = p.uti
+LEFT JOIN xlab_ecb_prj_sftds_cb_common.hermesf_gene g ON f.tec_surrogate_key = g.tec_uuid
+LEFT JOIN intragroup_mapping ig ON f.lender_id = ig.lender_id AND f.borrower_id = ig.borrower_id
+--LEFT JOIN lab_prj_emir_ecb.mbf_sector_enrichment_20210531 s_borrower ON f.borrower_id = s_borrower.id
+--LEFT JOIN lab_prj_emir_ecb.mbf_sector_enrichment_20210531 s_lender ON f.lender_id = s_lender.id
+--LEFT JOIN lab_prj_emir_ecb.mbf_sector_enrichment_20210531 s_parent_borrower ON f.borrower_parent_id = s_parent_borrower.id
+--LEFT JOIN lab_prj_emir_ecb.mbf_sector_enrichment_20210531 s_parent_lender ON f.lender_parent_id = s_parent_lender.id
+WHERE f.belgium_flag = 1
+AND ((f.ccp_1 IS NOT NULL AND m.triparty_agent_id IS NULL)
+       OR (f.ccp_1 IS NULL AND m.triparty_agent_id IS NOT NULL)
+       OR (f.ccp_1 IS NULL AND m.triparty_agent_id IS NULL)) -- this is to ensure consistency in clearing/triparty (it cannot be cleared and triparty at the same time)
+AND (m.repo_rate < 7 AND m.repo_rate > -1.1 OR repo_rate IS NULL)-- truncating less than 1% 
