@@ -11,7 +11,7 @@
 clear all
 set more off
 
-global path "/Users/massisfreg/Library/CloudStorage/Dropbox/Projects/US_Spillover_Repo"
+global path "C:/Users/hermesf/Projects/BanksFC"
 global data "$path/data"
 global datasets "$data/build/datasets"
 global graphs "$data/output/graphs"
