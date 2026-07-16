@@ -10,14 +10,16 @@ gen date = date(word(refdate, 1), "YMD")
 format date %td
 rename bondcode isin
 drop refdate
+duplicates drop isin date, force
 tempfile ns
 save `ns'
 
 * Euro area bond yields
 import delimited "$path\bond_timeseries_v2.csv", clear case(lower)
-duplicates drop
 gen date = date(word(dates, 1), "YMD")
 format date %td
+drop if missing(isin)
+duplicates drop isin date, force
 gen yield = (yld_ytm_bid + yld_ytm_ask) / 2
 
 * US treasury auction surprises
