@@ -168,44 +168,42 @@
 \pagenumbering{arabic}
 \setlength{\parindent}{0cm}
 
-{\large \textbf{Mechanism sketch: US Treasury auction shocks and euro-area bonds}}\\[4pt]
-\textit{For discussion. Estimates are first-pass, German-led specification.}
+{\large \textbf{Mechanism: a numerical example}}\\[4pt]
+\textit{Representative values; $\varphi$, the repo-financed share and $\lambda$ to be calibrated.}
 
 \vspace{0.8em}
 
-\textbf{Chain}
+\textbf{Setup}
 \bit
-\item Weak 10y auction ($z_t > 0$, revealed 19:00 CET, after the EA close): dealers and hedge funds absorb the surprise supply, financed overnight in USD repo.
-\item Stress hits the financiers: collateral values fall while financing demand, margins and haircuts rise.
-\item Euro-area banks are those financiers: USD cash lending against UST collateral, mostly bilateral to hedge funds (few EA banks clear at FICC).
-\item Their balance-sheet constraint tightens; low-margin EUR specific-collateral market-making is rationed first.
-\item Bonds relying on exposed banks' intermediation lose financing $\Rightarrow$ extra yield rise at the $t{+}1$ close, unwound within $\sim$2 trading days (price pressure, not repricing).
+\item Bank $A$: $s_A = 15\%$ of its gross repo book is USD financing against UST collateral; Bank $B$: $s_B = 2\%$ (cross-bank dispersion in the data: sd $\approx 3$ pp)
+\item Bund $X$ is intermediated 70\% by $A$, Bund $Y$ 70\% by $B$ $\;\Rightarrow\; \mathit{Exp}_X - \mathit{Exp}_Y = 0.7 \times (0.15 - 0.02) \approx 0.09$
+\item Repo-financed stock $\approx 25\%$ of amount outstanding (SFTR)
+\item Market elasticity $\lambda = 5$ bps per pp of outstanding traded (D'Amico and King 2013; Eser and Schwaab 2016; De Santis and Holm-Hadulla 2020)
 \eit
-
-\textbf{Measure.} $s_k$ = gross USD-against-UST repo over total repo book (bank-month, lagged); $\mathit{Exp}_{b,t} = \sum_k w_{k,b,t-1}\, s_k$, with $w_{k,b,t-1}$ = bank $k$'s share of bond $b$'s repo positions at the $t{-}1$ close. Everything predetermined. $\mathrm{sd}(\mathit{Exp}) = 0.033$.
-
-\textbf{Specification}
-\beq
-\Delta y_{b,t} \;=\; \beta\, z_{t-1} \!\times\! \mathit{Exp}_{b,t} \;+\; \gamma\, z_{t-1} \!\times\! \mathit{Dur}_{b,t-1} \;+\; \delta' X_{b,t-1} \;+\; \alpha_b \;+\; \tau_t \;+\; \varepsilon_{b,t}
-\eeq
-$\tau_t$ absorbs the aggregate shock response, so $\beta$ compares bonds within the same day; $z \times \mathit{Dur}$ keeps the duration clientele of USD-active dealers out of $\beta$. Current estimate: $\hat\beta = 0.67$ ($p = 0.001$).
 
 \vspace{0.4em}
 
-\textbf{Worked example} --- 1-sd weak auction ($z = \sigma_z = 9.3$), announced Tuesday 19:00 CET:
-\bit
-\item Wednesday close, common move: $0.16 \times 9.3 \approx 1.5$ bp on all euro yields (daily vol 3--5 bp), with $\sim$0.5 bp extra bear-steepening for 10y vs.\ 2y.
-\item Bank $A$: $s_A = 0.15$ (hedge-fund financing franchise). Bank $B$: $s_B = 0.02$. Bund $X$ is 70\% $A$-intermediated, Bund $Y$ 70\% $B$, rest at the average $s = 0.05$:
-$\mathit{Exp}_X = 0.12$, $\mathit{Exp}_Y = 0.03$.
-\item Wednesday differential: $0.67 \times 9.3 \times (0.12 - 0.03) \approx 0.6$ bp --- Bund $X$ cheapens 0.6 bp relative to Bund $Y$, on top of the common 1.5 bp. For a 2.5-sd tail auction: $\approx 1.4$ bp.
-\item Friday close: differential back to $\approx 0$ (local projections die out at $h \approx 2$).
-\eit
+\textbf{Step 1} \quad \textit{a 1-sd weak auction ties up the exposed bank's balance sheet}
 
-\textbf{To discuss}
-\bit
-\item Sign conventions of $z$ and $z^{(2)}$ from the PCA loadings (assumed here: $z > 0$ = weak auction = US yields up).
-\item Constraint story vs.\ ``global dealers reprice faster'': the discriminating evidence is quantities --- exposed banks' EUR repo volumes and conditions should deteriorate over $t$..$t{+}2$ (directly testable in SFTR); related: asymmetry weak vs.\ strong auctions, quarter-ends.
-\item France: interaction flips sign (DE/ES/IT positive). Likely no within-FR dispersion in $\mathit{Exp}$ (GSIB concentration in OAT intermediation)? Pooled spec needs country$\times$date FE.
-\eit
+Margin calls and client financing demand force each bank to free up $\varphi = 10\%$ of its USD--UST footprint, cutting its EUR market-making book by
+\beqno
+\varphi \times s: \qquad A\!: \; 10\% \times 15\% = 1.5\%, \qquad B\!: \; 10\% \times 2\% = 0.2\%
+\eeqno
+
+\textbf{Step 2} \quad \textit{the rationing hits the two bonds asymmetrically}
+
+Financing withdrawn from Bund $X$ relative to Bund $Y$:
+\beqno
+0.7 \times (1.5\% - 0.2\%) \;\approx\; 0.9\% \text{ of the repo stock} \;=\; 0.9\% \times 25\% \;\approx\; 0.23\% \text{ of the outstanding}
+\eeqno
+
+\textbf{Step 3} \quad \textit{withdrawn financing moves the yield}
+\beqno
+\Delta y_X - \Delta y_Y \;\approx\; \lambda \times 0.23 \;=\; 5 \times 0.23 \;\approx\; 1.1 \text{ bps}
+\eeqno
+
+\vspace{0.4em}
+
+\textbf{Check against the estimate.} The regression gives $\hat\beta \times \sigma_z \times (\mathit{Exp}_X - \mathit{Exp}_Y) = 0.67 \times 9.3 \times 0.09 \approx 0.6$ bps for the same exposure gap $\Rightarrow$ the data imply $\varphi \approx 5\%$, a modest reallocation --- consistent with the local projections, which show the differential unwound within $\sim$2 trading days.
 
 \end{document}
