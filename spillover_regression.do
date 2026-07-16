@@ -18,7 +18,7 @@ save `ns'
 import delimited "$path\bond_timeseries_v2.csv", clear case(lower)
 gen date = date(word(dates, 1), "YMD")
 format date %td
-drop if missing(isin)
+keep if substr(isin, 1, 2) == "DE"
 duplicates drop isin date, force
 gen yield = (yld_ytm_bid + yld_ytm_ask) / 2
 
