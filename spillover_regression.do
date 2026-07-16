@@ -5,10 +5,11 @@ global path "C:\Users\hermesf\Projects\BanksFC"
 
 * Nelson-Siegel durations (DE)
 import delimited "$path\NelsonSiegel_DE_prices.csv", clear case(lower)
+keep bondcode refdate duration
 gen date = date(word(refdate, 1), "YMD")
 format date %td
 rename bondcode isin
-keep isin date duration
+drop refdate
 tempfile ns
 save `ns'
 
@@ -38,4 +39,8 @@ by bond_id: gen z1_lag = z1[_n-1]
 by bond_id: gen dur_lag = duration[_n-1]
 by bond_id: gen spread_lag = ba_spread[_n-1]
 
+* (1) Average spillover
 reghdfe d_yield z1_lag dur_lag spread_lag, absorb(bond_id) vce(cluster date)
+
+* (2) Duration-scaled spillover; date FE absorb the aggregate shock
+reghdfe d_yield c.z1_lag#c.dur_lag dur_lag spread_lag, absorb(bond_id date) vce(cluster date)
