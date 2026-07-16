@@ -17,4 +17,7 @@ egen bond_id = group(isin)
 sort bond_id date
 by bond_id: gen d_yield = 100 * (yield - yield[_n-1])
 
-reghdfe d_yield z1, absorb(bond_id) vce(cluster date)
+* Auction results (~19:00 CET) land after the EA close -> use previous-day shock
+by bond_id: gen z1_lag = z1[_n-1]
+
+reghdfe d_yield z1_lag, absorb(bond_id) vce(cluster date)
