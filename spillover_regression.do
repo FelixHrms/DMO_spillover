@@ -54,3 +54,20 @@ reghdfe d_yield c.z2_lag#c.dur_lag dur_lag spread_lag, absorb(bond_id date) vce(
 * (5) Mechanism: USD-exposure-scaled spillover (usd_exposure already dated t
 * from t-1 inputs -> do not lag again), duration gradient controlled
 reghdfe d_yield c.z1_lag#c.usd_exposure c.z1_lag#c.dur_lag usd_exposure dur_lag spread_lag, absorb(bond_id date) vce(cluster date)
+
+* (6) Local projections of the exposure interaction: cumulative yield change
+* from the pre-shock close to t+h, h in trading days
+gen h = _n - 1 if _n <= 11
+gen b = .
+gen se = .
+forvalues h = 0/10 {
+    bysort bond_id (date): gen y`h' = 100 * (yield[_n + `h'] - yield[_n - 1])
+    reghdfe y`h' c.z1_lag#c.usd_exposure c.z1_lag#c.dur_lag usd_exposure dur_lag spread_lag, absorb(bond_id date) vce(cluster date)
+    replace b = _b[c.z1_lag#c.usd_exposure] if h == `h'
+    replace se = _se[c.z1_lag#c.usd_exposure] if h == `h'
+    drop y`h'
+}
+gen lo = b - 1.96 * se
+gen hi = b + 1.96 * se
+twoway (rarea lo hi h, color(gs13)) (line b h, lcolor(navy)), yline(0, lpattern(dash)) ///
+    xtitle("Horizon (trading days)") ytitle("z1 x USD exposure") legend(off)
