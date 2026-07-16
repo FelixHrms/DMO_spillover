@@ -3,33 +3,17 @@ set more off
 
 global path "C:\Users\hermesf\Projects\BanksFC"
 
-* Nelson-Siegel durations (DE)
-import delimited "$path\NelsonSiegel_DE_prices.csv", clear case(lower)
-keep bondcode refdate duration
-gen date = date(word(refdate, 1), "YMD")
-format date %td
-rename bondcode isin
-drop refdate
-duplicates drop isin date, force
-tempfile ns
-save `ns'
-
 * Euro area bond yields
-import delimited "$path\bond_timeseries_v2.csv", clear case(lower)
+import delimited "$path\bond_ts.csv", clear case(lower)
 gen date = date(word(dates, 1), "YMD")
 format date %td
-keep if substr(isin, 1, 2) == "DE"
+drop if missing(isin)
 duplicates drop isin date, force
 gen yield = (yld_ytm_bid + yld_ytm_ask) / 2
+gen ba_spread = px_ask - px_bid
 
 * US treasury auction surprises
 merge m:1 date using "$path\surprises.dta", keep(match) nogen
-
-* Controls: NS duration (residual maturity where missing), bid-ask spread
-merge 1:1 isin date using `ns', keep(master match) nogen
-gen res_mat = (date(word(bond_maturity, 1), "YMD") - date) / 365.25
-replace duration = res_mat if missing(duration)
-gen ba_spread = px_ask - px_bid
 
 * Daily yield change in bps
 egen bond_id = group(isin)
