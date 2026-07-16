@@ -3,6 +3,15 @@ set more off
 
 global path "C:\Users\hermesf\Projects\BanksFC"
 
+* USD exposure (bond-day, built from t-1 positions in the notebook)
+import delimited "$path\bond_usd_exposure.csv", clear case(lower)
+gen d = date(word(date, 1), "YMD")
+drop date
+rename d date
+format date %td
+tempfile expo
+save `expo'
+
 * Euro area bond yields
 import delimited "$path\bond_ts.csv", clear case(lower)
 gen date = date(word(dates, 1), "YMD")
@@ -14,6 +23,9 @@ gen ba_spread = px_ask - px_bid
 
 * US treasury auction surprises
 merge m:1 date using "$path\surprises.dta", keep(match) nogen
+
+* USD exposure of the bond's intermediaries
+merge 1:1 isin date using `expo', keep(master match) nogen
 
 * Daily yield change in bps
 egen bond_id = group(isin)
@@ -38,3 +50,7 @@ reghdfe d_yield z2_lag dur_lag spread_lag, absorb(bond_id) vce(cluster date)
 
 * (4) Duration-scaled, slope surprise
 reghdfe d_yield c.z2_lag#c.dur_lag dur_lag spread_lag, absorb(bond_id date) vce(cluster date)
+
+* (5) Mechanism: USD-exposure-scaled spillover (usd_exposure already dated t
+* from t-1 inputs -> do not lag again), duration gradient controlled
+reghdfe d_yield c.z1_lag#c.usd_exposure c.z1_lag#c.dur_lag usd_exposure dur_lag spread_lag, absorb(bond_id date) vce(cluster date)
