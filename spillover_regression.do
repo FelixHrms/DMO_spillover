@@ -15,6 +15,7 @@ save `ns'
 
 * Euro area bond yields
 import delimited "$path\bond_timeseries_v2.csv", clear case(lower)
+duplicates drop
 gen date = date(word(dates, 1), "YMD")
 format date %td
 gen yield = (yld_ytm_bid + yld_ytm_ask) / 2
