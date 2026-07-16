@@ -1,6 +1,0 @@
-CREATE TABLE xlab_ecb_prj_sftds_cb_common.hermesf_state AS
-SELECT * FROM xlab_ecb_prj_sftds_cb_common.hermesf_state_p1
-UNION ALL 
-SELECT * FROM xlab_ecb_prj_sftds_cb_common.hermesf_state_p2
-UNION ALL 
-SELECT * FROM xlab_ecb_prj_sftds_cb_common.hermesf_state_p3
