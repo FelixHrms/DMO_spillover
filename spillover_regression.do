@@ -56,18 +56,23 @@ reghdfe d_yield c.z2_lag#c.dur_lag dur_lag spread_lag, absorb(bond_id date) vce(
 reghdfe d_yield c.z1_lag#c.usd_exposure c.z1_lag#c.dur_lag usd_exposure dur_lag spread_lag, absorb(bond_id date) vce(cluster date)
 
 * (6) Local projections of the exposure interaction: cumulative yield change
-* from the pre-shock close to t+h, h in trading days
-gen h = _n - 1 if _n <= 11
+* from the pre-shock close to t+h, h in trading days (h < 0: pre-trends;
+* h = -1 is the reference point, zero by construction)
+gen h = _n - 6 if _n <= 16
 gen b = .
 gen se = .
-forvalues h = 0/10 {
-    bysort bond_id (date): gen y`h' = 100 * (yield[_n + `h'] - yield[_n - 1])
-    reghdfe y`h' c.z1_lag#c.usd_exposure c.z1_lag#c.dur_lag usd_exposure dur_lag spread_lag, absorb(bond_id date) vce(cluster date)
+forvalues h = -5/10 {
+    if `h' == -1 continue
+    local j = `h' + 5
+    bysort bond_id (date): gen y`j' = 100 * (yield[_n + `h'] - yield[_n - 1])
+    reghdfe y`j' c.z1_lag#c.usd_exposure c.z1_lag#c.dur_lag usd_exposure dur_lag spread_lag, absorb(bond_id date) vce(cluster date)
     replace b = _b[c.z1_lag#c.usd_exposure] if h == `h'
     replace se = _se[c.z1_lag#c.usd_exposure] if h == `h'
-    drop y`h'
+    drop y`j'
 }
+replace b = 0 if h == -1
+replace se = 0 if h == -1
 gen lo = b - 1.96 * se
 gen hi = b + 1.96 * se
 twoway (rarea lo hi h, color(gs13)) (line b h, lcolor(navy)), yline(0, lpattern(dash)) ///
-    xtitle("Horizon (trading days)") ytitle("z1 x USD exposure") legend(off)
+    xline(-0.5, lpattern(dot)) xtitle("Horizon (trading days)") ytitle("z1 x USD exposure") legend(off)
