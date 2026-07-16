@@ -175,35 +175,37 @@
 
 \textbf{Setup}
 \bit
-\item Bank $A$: $s_A = 15\%$ of its gross repo book is USD financing against UST collateral; Bank $B$: $s_B = 2\%$ (cross-bank dispersion in the data: sd $\approx 3$ pp)
-\item Bund $X$ is intermediated 70\% by $A$, Bund $Y$ 70\% by $B$ $\;\Rightarrow\; \mathit{Exp}_X - \mathit{Exp}_Y = 0.7 \times (0.15 - 0.02) \approx 0.09$
+\item Bank $A$: $s_A = 15\%$ of its gross repo book is USD financing against UST collateral; Bank $B$: $s_B = 2\%$; market average $\bar{s} = 5\%$
+\item Bund $X$ is intermediated 70\% by $A$, Bund $Y$ 70\% by $B$ (rest at $\bar{s}$) $\;\Rightarrow\; \mathit{Exp}_X = 0.12$, $\mathit{Exp}_Y = 0.03$
 \item Repo-financed stock $\approx 25\%$ of amount outstanding (SFTR)
 \item Market elasticity $\lambda = 5$ bps per pp of outstanding traded (D'Amico and King 2013; Eser and Schwaab 2016; De Santis and Holm-Hadulla 2020)
 \eit
 
 \vspace{0.4em}
 
-\textbf{Step 1} \quad \textit{a 1-sd weak auction ties up the exposed bank's balance sheet}
+\textbf{Step 1} \quad \textit{an auction surprise that pushes US yields up ties up balance sheet}
 
-Margin calls and client financing demand force each bank to free up $\varphi = 10\%$ of its USD--UST footprint, cutting its EUR market-making book by
+The bank's UST financing business consumes more balance sheet; each bank frees up $\varphi = 10\%$ of that footprint by cutting its EUR market-making book:
 \beqno
-\varphi \times s: \qquad A\!: \; 10\% \times 15\% = 1.5\%, \qquad B\!: \; 10\% \times 2\% = 0.2\%
+\varphi \times s: \qquad A\!: \; 10\% \times 15\% = 1.5\%, \qquad B\!: \; 10\% \times 2\% = 0.2\%, \qquad \text{avg}\!: \; 0.5\%
 \eeqno
 
-\textbf{Step 2} \quad \textit{the rationing hits the two bonds asymmetrically}
-
-Financing withdrawn from Bund $X$ relative to Bund $Y$:
+\textbf{Step 2} \quad \textit{financing is withdrawn from each bond}
 \beqno
-0.7 \times (1.5\% - 0.2\%) \;\approx\; 0.9\% \text{ of the repo stock} \;=\; 0.9\% \times 25\% \;\approx\; 0.23\% \text{ of the outstanding}
+\text{Bund } X\!: \;\; 0.7 \times 1.5\% + 0.3 \times 0.5\% = 1.2\% \text{ of repo stock} \;=\; 1.2\% \times 25\% \;=\; 0.30\% \text{ of outstanding}
+\eeqno
+\beqno
+\text{Bund } Y\!: \;\; 0.7 \times 0.2\% + 0.3 \times 0.5\% = 0.3\% \text{ of repo stock} \;=\; 0.3\% \times 25\% \;\approx\; 0.07\% \text{ of outstanding}
 \eeqno
 
 \textbf{Step 3} \quad \textit{withdrawn financing moves the yield}
 \beqno
-\Delta y_X - \Delta y_Y \;\approx\; \lambda \times 0.23 \;=\; 5 \times 0.23 \;\approx\; 1.1 \text{ bps}
+\Delta y_X \approx \lambda \times 0.30 = 1.5 \text{ bps}, \qquad
+\Delta y_Y \approx \lambda \times 0.07 \approx 0.4 \text{ bps}
 \eeqno
 
 \vspace{0.4em}
 
-\textbf{Check against the estimate.} The regression gives $\hat\beta \times \sigma_z \times (\mathit{Exp}_X - \mathit{Exp}_Y) = 0.67 \times 9.3 \times 0.09 \approx 0.6$ bps for the same exposure gap $\Rightarrow$ the data imply $\varphi \approx 5\%$, a modest reallocation --- consistent with the local projections, which show the differential unwound within $\sim$2 trading days.
+\textbf{Check against the estimate.} With date fixed effects the regression identifies the \emph{gap}, $\Delta y_X - \Delta y_Y \approx 1.1$ bps in this example. Estimated: $\hat\beta \times \sigma_z \times (\mathit{Exp}_X - \mathit{Exp}_Y) = 0.67 \times 9.3 \times 0.09 \approx 0.6$ bps $\Rightarrow$ the data imply $\varphi \approx 5\%$, unwound within $\sim$2 trading days (local projections).
 
 \end{document}
