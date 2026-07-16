@@ -39,11 +39,18 @@ by bond_id: gen d_yield = 100 * (yield - yield[_n-1])
 * Auction results (~19:00 CET) land after the EA close -> previous-day shock;
 * controls also at t-1 so they are predetermined w.r.t. the shock
 by bond_id: gen z1_lag = z1[_n-1]
+by bond_id: gen z2_lag = z2[_n-1]
 by bond_id: gen dur_lag = duration[_n-1]
 by bond_id: gen spread_lag = ba_spread[_n-1]
 
-* (1) Average spillover
+* (1) Average spillover, level surprise
 reghdfe d_yield z1_lag dur_lag spread_lag, absorb(bond_id) vce(cluster date)
 
-* (2) Duration-scaled spillover; date FE absorb the aggregate shock
+* (2) Duration-scaled, level surprise; date FE absorb the aggregate shock
 reghdfe d_yield c.z1_lag#c.dur_lag dur_lag spread_lag, absorb(bond_id date) vce(cluster date)
+
+* (3) Average spillover, slope surprise
+reghdfe d_yield z2_lag dur_lag spread_lag, absorb(bond_id) vce(cluster date)
+
+* (4) Duration-scaled, slope surprise
+reghdfe d_yield c.z2_lag#c.dur_lag dur_lag spread_lag, absorb(bond_id date) vce(cluster date)
