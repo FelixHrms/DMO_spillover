@@ -1,0 +1,250 @@
+\documentclass[english, 11pt, oneside]{article}
+
+% Page geometry and layout
+\usepackage[left=2.5cm, right=2.5cm, top=2.3cm, bottom=2.3cm]{geometry}
+\usepackage{fancyhdr}
+\usepackage{layout}
+\usepackage{multicol}
+\usepackage{multirow}
+
+% Math packages
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+% Text and language
+\usepackage[utf8]{inputenc}
+\usepackage{babel}
+\usepackage{csquotes}
+\usepackage{soul}
+
+% Bibliography
+\usepackage[authoryear,longnamesfirst]{natbib}
+
+% Tables and figures
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{dcolumn}
+\usepackage{longtable}
+\usepackage{rotating}
+\usepackage{float}
+\usepackage{placeins}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage[font=footnotesize,labelfont=bf]{caption}
+% Colors and styling
+\usepackage{color, colortbl}
+\usepackage{yfonts}
+\usepackage{titlesec}
+\usepackage{setspace}
+
+% Misc functionality
+\usepackage{comment}
+\usepackage{lscape}
+\usepackage{pdflscape}
+\usepackage{changepage}
+\usepackage{lipsum}
+\usepackage{enumitem}
+\setlist[itemize]{
+    topsep=0.5\baselineskip,    % default is ~\baselineskip
+    partopsep=0pt,
+    itemsep=0.2\baselineskip,   % try 0pt if you want no gap at all
+    parsep=0pt
+}
+\usepackage{siunitx}
+\usepackage{eurosym}
+\usepackage{textcomp}
+\usepackage[toc]{appendix}
+\usepackage{pifont}
+\usepackage{microtype}
+
+% Load hyperref last
+\usepackage[hyperfootnotes=true, urlcolor=darkred]{hyperref}
+
+% Colors
+\definecolor{darkred}{rgb}{0.6,0.0,0.0}
+\definecolor{orange}{rgb}{1,0.5,0}
+\definecolor{Gray}{gray}{0.9}
+\definecolor{darkgreen}{rgb}{0.0, 0.5, 0.0}
+
+% Hyperref setup
+\hypersetup{
+    colorlinks=true,
+    raiselinks=true,
+    breaklinks=false,
+    linkcolor=darkred,
+    anchorcolor=darkred,
+    citecolor=darkred
+}
+
+% Custom column types
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\centering\arraybackslash}X}
+\newcolumntype{g}{>{\columncolor{Gray}\centering\arraybackslash}X}
+\newcolumntype{d}[1]{D{.}{.}{#1}}
+\newcolumntype{.}{D{.}{.}{-1}}
+
+% Text formatting
+\linespread{1.5}
+
+% Section formatting
+\titleformat{\section}
+    {\large\bf\centering\sc}
+    {\thesection.}
+    {1em}
+    {}
+\titleformat{\subsection}
+    {\sl}
+    {\thesubsection.}
+    {1em}
+    {}
+\titleformat{\subsubsection}
+    {\sl}
+    {\thesubsubsection.}
+    {1em}
+    {}
+
+% Counter settings
+\renewcommand{\thesection}{\arabic{section}}
+\renewcommand{\thesubsection}{\arabic{section}.\arabic{subsection}}
+\renewcommand{\thetable}{\Roman{table}}
+
+% Custom commands
+\newcommand{\cs}[1]{{\color{blue}\bf CS: #1}}
+\newcommand{\ltab}{\raggedright\arraybackslash}
+\newcommand{\ctab}{\centering\arraybackslash}
+\newcommand{\rtab}{\raggedleft\arraybackslash}
+\newcommand{\Qmeas}{\mathbb{Q}}
+\newcommand{\Pmeas}{\mathbb{P}}
+\newcommand{\brac}[1]{\left ( #1 \right )}
+\newcommand{\brak}[1]{\left [ #1 \right ]}
+\newcommand{\brat}[1]{\left \{ #1 \right \}}
+\newcommand{\evt}[2]{\mathbb{E}^{\Pmeas}_{#1}\brak{#2}}
+\newcommand{\evqt}[2]{\mathbb{E}^{\Qmeas}_{#1}\brak{#2}}
+\newcommand{\ev}[2]{\mathbb{E}_{#1}\brak{#2}}
+\newcommand{\rev}[1]{\textcolor{orange}{\textbf{\emph{#1}}}}
+\newcommand{\MS}[1]{\textcolor{orange}{\textbf{\tt{#1}}}}
+\newcommand{\beq}{\begin{equation}}
+\newcommand{\eeq}{\end{equation}}
+\newcommand{\beqno}{\begin{equation*}}
+\newcommand{\eeqno}{\end{equation*}}
+\newcommand{\mbb}{\mathbb}
+\newcommand{\mca}{\mathcal}
+\newcommand{\msc}{\mathscr}
+\newcommand{\ben}{\begin{enumerate}}
+\newcommand{\een}{\end{enumerate}}
+\newcommand{\bit}{\begin{itemize}}
+\newcommand{\eit}{\end{itemize}}
+\newcommand{\beqn}{\begin{eqnarray}}
+\newcommand{\eeqn}{\end{eqnarray}}
+\newcommand{\nono}{\nonumber}
+\newcommand{\beqnn}{\begin{eqnarray*}}
+\newcommand{\eeqnn}{\end{eqnarray*}}
+\newcommand{\lvs}{\vspace{0.4cm}}
+\newcommand{\svs}{\vspace{0.2cm}}
+\newcommand{\mbbe}{\mathbb{E}}
+\newcommand{\mbbv}{\mathbb{V}}
+\newcommand{\mbbcv}{\mathbb{CV}}
+\newcommand{\mc}{\multicolumn}
+\newcommand{\mrev}[1]{\textcolor{darkred}{{\textsf{#1}}}}
+\newcommand{\mgreen}[1]{\textcolor{darkgreen}{{\textsf{#1}}}}
+\newcommand{\mscom}[1]{\colorbox{yellow}{\scriptsize{{[MS}: #1\textbf{]}}}}
+\newcommand{\mutlicomment}[1]{}
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\bottomfraction}{0.95}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.75}
+\setcounter{topnumber}{3}
+\setcounter{totalnumber}{4}
+
+
+
+\begin{document}
+
+\pagenumbering{arabic}
+\setlength{\parindent}{0cm}
+
+{\large \textbf{US Treasury Auction Shocks and the Euro-Area Repo Market: \\[2pt] A Mechanism Sketch}}\\[6pt]
+\textit{Discussion note, July 2026. All magnitudes below are current first-pass estimates from the German-led specification; treat them as orders of magnitude, not final numbers.}
+
+\vspace{0.8em}
+
+\section{Objects and timing}
+
+\textbf{Shock.} $z_t$ is the first principal component of price surprises of the 2y, 5y, 10y and 30y Treasury futures around 10-year auction results (level factor). On auction days in 2021--25 (65 events, roughly monthly), $\sigma_z \approx 9.3$; non-auction days carry no variation. We \emph{assume} the normalization $z_t > 0$ $\Leftrightarrow$ weak auction $\Leftrightarrow$ US yields rise. \textbf{Open item:} confirm the sign from the PCA loadings, and likewise for the slope factor $z^{(2)}$.
+
+\textbf{Outcome.} $\Delta y_{b,t}$, the close-to-close change in the mid yield-to-maturity of euro-area sovereign bond $b$ (in basis points), SFTR-era panel (DE, FR, ES, IT).
+
+\textbf{Timing convention.} Auction results arrive at 13:00 ET $\approx$ 19:00 CET, \emph{after} the European close. The day-$t$ European close therefore cannot react to the day-$t$ auction; the first euro-area price that can is the day-$t{+}1$ close. All regressions accordingly relate $\Delta y_{b,t}$ to $z_{t-1}$, and every right-hand-side object (positions, shares, controls) is measured at the $t{-}1$ close or earlier, i.e.\ strictly pre-shock.
+
+\section{The chain}
+
+\textbf{Link 1: absorption.} The surprise supply of a weak auction is absorbed by primary dealers and, increasingly, by leveraged funds via cash--futures basis positions. The marginal holder of the new Treasuries is financed overnight in USD repo.
+
+\textbf{Link 2: USD financing stress.} More collateral seeks financing exactly when collateral values have fallen: USD repo utilization rises, futures margins are called, haircuts move. The stress lands on whoever finances the leveraged Treasury complex.
+
+\textbf{Link 3: euro-area banks inside that plumbing.} Euro-area banks appear in three roles: (a) lending USD cash against UST collateral, largely to hedge funds and largely \emph{bilaterally}, since only a handful of European banks clear at FICC; (b) borrowing USD (money funds, sponsored repo, FX swaps); (c) holding USTs outright. Role (a) is the one hit on impact: client financing demand jumps and collateral risk rises simultaneously.
+
+\textbf{Link 4: rationing of euro intermediation.} The group-level balance-sheet constraint (leverage ratio, VaR, funding plan) tightens. Low-margin balance-sheet businesses are rationed first, and euro specific-collateral market-making is exactly that. The bank widens quotes or shrinks its book in the bonds it intermediates; financing for holders of those bonds becomes scarcer; a liquidity premium appears in exactly those bonds. Since arbitrage capital closes such gaps within days, the differential should be \emph{transitory} --- a dislocation, not a repricing.
+
+The reduced-form prediction is
+\beq
+\Delta y_{b,t} \;=\; \beta \, \big(z_{t-1} \times \mathit{Exp}_{b,t}\big) \;+\; \gamma \, \big(z_{t-1} \times \mathit{Dur}_{b,t-1}\big) \;+\; \delta' X_{b,t-1} \;+\; \alpha_b \;+\; \tau_t \;+\; \varepsilon_{b,t},
+\eeq
+with $\beta > 0$ on impact and vanishing within days. Date fixed effects $\tau_t$ absorb the aggregate shock response entirely; $\beta$ is identified purely from same-day, same-market comparisons across bonds. The $z \times \mathit{Dur}$ term is not decoration: USD-active dealers intermediate systematically longer bonds, and the curve response to $z$ has its own duration gradient, so omitting it loads that gradient onto $\beta$.
+
+\section{Measurement}
+
+Bank-level USD exposure (monthly):
+\beq
+s_{k,m} \;=\; \frac{\text{gross USD-cash repo of bank } k \text{ against UST collateral in month } m}{\text{gross total repo book of bank } k \text{ in month } m},
+\eeq
+gross meaning both cash legs summed --- the constraint that transmits is balance-sheet capacity, which binds on gross, not net. Bond-level exposure (daily):
+\beq
+\mathit{Exp}_{b,t} \;=\; \sum_k w_{k,b,t-1} \; s_{k,m(t)-1},
+\eeq
+where $w_{k,b,t-1}$ is bank $k$'s share of the outstanding specific-collateral repo positions in bond $b$ at the $t{-}1$ close. Cross-sectional dispersion: $\mathrm{sd}(\mathit{Exp}) \approx 0.033$.
+
+Two design choices worth defending to ourselves. \emph{Intensity, not size:} $s_k$ is a share of the bank's book, so $\mathit{Exp}$ is not a big-bank dummy; bank size enters only through the bond-level weights, where it belongs. \emph{Collateral, not currency:} restricting the numerator to UST collateral (rather than all USD repo) left the per-sd effect unchanged but tripled its precision --- the broad USD book was measurement noise around a UST-specific signal. That is itself evidence for Link 3(a) over a generic ``USD funding footprint'' story.
+
+\section{A worked example}
+
+Take a one-standard-deviation weak auction ($z = 9.3$) announced Tuesday 19:00 CET.
+
+\bit
+\item \textbf{Common spillover.} The average euro-area response is $0.16 \times 9.3 \approx 1.5$ bp: Wednesday's close has yields about 1.5 bp higher across the board. For comparison, daily yield vol is 3--5 bp.
+\item \textbf{Curve shape.} The duration gradient is $0.007 \times 9.3 \approx 0.065$ bp per year of duration: a 10y bond rises about half a basis point more than a 2y bond --- bear steepening, the term-premium signature (the short end is pinned by the ECB). The slope surprise $z^{(2)}$ itself does essentially nothing.
+\item \textbf{The mechanism differential.} Consider Bank $A$ with $s_A = 0.15$ (15\% of its book is USD-against-UST, a bilateral hedge-fund financing franchise) and Bank $B$ with $s_B = 0.02$. Bund $X$ is intermediated 70\% by $A$, Bund $Y$ 70\% by $B$, remainder at the market average $s = 0.05$:
+\beqno
+\mathit{Exp}_X = 0.7 \times 0.15 + 0.3 \times 0.05 = 0.12, \qquad
+\mathit{Exp}_Y = 0.7 \times 0.02 + 0.3 \times 0.05 = 0.03.
+\eeqno
+The gap of $0.09$ is about $2.7$ standard deviations of $\mathit{Exp}$. With $\hat\beta = 0.67$ ($p = 0.001$), Wednesday's differential is $0.67 \times 9.3 \times 0.09 \approx 0.6$ bp: Bund $X$ closes about 0.6 bp cheaper than Bund $Y$, on top of the common 1.5 bp. For a 2.5-sd tail auction the same arithmetic gives a differential around 1.4 bp.
+\item \textbf{Unwind.} Local projections put the differential at zero by roughly $t{+}2$: the dislocation is closed within two trading days. (Horizons beyond $\sim$15 days are outside the design's resolution: windows begin to overlap the next monthly auction and overlapping cumulative outcomes overstate significance under date clustering --- parked.)
+\eit
+
+\section{Identification: what is netted out, what remains}
+
+Date fixed effects remove every common channel --- information revelation, global rebalancing, ECB news on the same day. Bond fixed effects remove bond-specific drift. Predetermined weights and shares ($t{-}1$ positions, month $m{-}1$ shares) rule out same-day repositioning as reverse causality; the $z \times \mathit{Dur}$ control absorbs dealer clientele in duration. Quote staleness in less liquid bonds biases \emph{against} us (attenuation).
+
+The threat that survives all of this: $\mathit{Exp}$ may proxy for \emph{being intermediated by global dealers}, and bonds served by global dealers might reprice faster after US news for informational reasons, with no funding friction at all. The discriminating tests, in the order I would run them:
+
+\ben
+\item \textbf{Quantities (the smoking gun).} The constraint story predicts that exposed banks' euro repo volumes and quoted conditions in affected bonds \emph{deteriorate} on $t$ to $t{+}2$; the information story predicts repricing with no quantity response. SFTR lets us test this directly.
+\item \textbf{Asymmetry.} Constraints bind one-sided: weak auctions ($z > 0$) should drive the interaction; strong auctions should do little.
+\item \textbf{State dependence.} The differential should be larger at quarter-ends (leverage-ratio windows) and when dealer Treasury inventories are stretched.
+\item \textbf{Counterparty split.} Rebuilding $s_k$ from \emph{hedge-fund-facing} UST repo only should sharpen the effect if Link 3(a) is the conduit; the split also separates the bank-constraint story from client-deleveraging contagion, which is the version regulators care about.
+\item \textbf{Repo-market outcome.} The bond's own repo rate (specialness) is one step closer to the mechanism than the cash yield and should respond more sharply.
+\een
+
+\section{Cross-country pattern and open items}
+
+Within-country, the interaction is positive in Germany ($0.67$, $p = 0.001$), Spain (similar, significant) and Italy (similar, imprecise). France flips sign and breaks the pooled regression. Three non-exclusive readings: French GSIBs dominate OAT intermediation so uniformly that $\mathit{Exp}$ has little within-France dispersion (no identifying variation --- check the dispersion table); 2024--25 French political episodes inject idiosyncratic yield moves; and the hedged-Japanese-investor clientele gives OATs a separate US-rate channel. The defensible pooled specification is country$\times$date fixed effects, reported with and without France --- not a silent exclusion.
+
+Open items for discussion: (i) sign conventions of $z$ and $z^{(2)}$ from the PCA loadings; (ii) country$\times$date pooled run; (iii) quantity outcomes in SFTR; (iv) hedge-fund counterparty split; (v) cash-lending vs.\ collateral-borrowing legs on the euro side (they carry different predictions); (vi) repo specialness as outcome; (vii) capital-normalized exposure using supervisory denominators; (viii) Driscoll--Kraay errors if we want horizons past two weeks.
+
+\end{document}
